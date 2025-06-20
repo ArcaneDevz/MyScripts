@@ -17,7 +17,7 @@ Aimbot.Settings = {
 	AimPart = "Head",
 	Hotkey1 = Enum.UserInputType.MouseButton2,
 	Hotkey2 = Enum.KeyCode.E,
-	Aimbot.Fov = {
+	Fov = {
 		Enabled = false,
 		ShowFov = false,
 		Transparency = 1,
@@ -38,35 +38,35 @@ local function createFovCircle()
 		fovCircle:Remove()
 	end
 	fovCircle = Drawing.new("Circle")
-	fovCircle.Visible = Settings.Fov.ShowFov
-	fovCircle.Transparency = Settings.Fov.Transparency
-	fovCircle.Thickness = Settings.Fov.Thickness
-	fovCircle.NumSides = Settings.Fov.NumSides
-	fovCircle.Radius = Settings.Fov.Radius
+	fovCircle.Visible = Aimbot.Settings.Fov.ShowFov
+	fovCircle.Transparency = Aimbot.Settings.Fov.Transparency
+	fovCircle.Thickness = Aimbot.Settings.Fov.Thickness
+	fovCircle.NumSides = Aimbot.Settings.Fov.NumSides
+	fovCircle.Radius = Aimbot.Settings.Fov.Radius
 	fovCircle.Filled = false
-	fovCircle.Color = Settings.Fov.Color
+	fovCircle.Color = Aimbot.Settings.Fov.Color
 end
 
 local function updateFovCircle()
 	if fovCircle then
 		fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-		fovCircle.Visible = Settings.Fov.ShowFov
-		fovCircle.Transparency = Settings.Fov.Transparency
-		fovCircle.Thickness = Settings.Fov.Thickness
-		fovCircle.NumSides = Settings.Fov.NumSides
-		fovCircle.Radius = Settings.Fov.Radius
-		fovCircle.Color = currentTarget and Settings.Fov.TargetColor or Settings.Fov.Color
+		fovCircle.Visible = Aimbot.Settings.Fov.ShowFov
+		fovCircle.Transparency = Aimbot.Settings.Fov.Transparency
+		fovCircle.Thickness = Aimbot.Settings.Fov.Thickness
+		fovCircle.NumSides = Aimbot.Settings.Fov.NumSides
+		fovCircle.Radius = Aimbot.Settings.Fov.Radius
+		fovCircle.Color = currentTarget and Aimbot.Settings.Fov.TargetColor or Aimbot.Settings.Fov.Color
 	end
 end
 
 local function isInFov(screenPos)
-	if not Settings.Fov.Enabled then
+	if not Aimbot.Settings.Fov.Enabled then
 		return true
 	end
 	local centerX = Camera.ViewportSize.X / 2
 	local centerY = Camera.ViewportSize.Y / 2
 	local distance = math.sqrt((centerX - screenPos.X)^2 + (centerY - screenPos.Y)^2)
-	return distance <= Settings.Fov.Radius
+	return distance <= Aimbot.Settings.Fov.Radius
 end
 
 local function notBehindWall(target)
@@ -88,11 +88,11 @@ local function notBehindWall(target)
 end
 
 local function getTargetPart(character)
-	if Settings.AimPart == "Head" then
+	if Aimbot.Settings.AimPart == "Head" then
 		return character:FindFirstChild("Head")
-	elseif Settings.AimPart == "HumanoidRootPart" then
+	elseif Aimbot.Settings.AimPart == "HumanoidRootPart" then
 		return character:FindFirstChild("HumanoidRootPart")
-	elseif Settings.AimPart == "Random" then
+	elseif Aimbot.Settings.AimPart == "Random" then
 		local parts = {}
 		if character:FindFirstChild("Head") then
 			table.insert(parts, character.Head)
@@ -101,7 +101,7 @@ local function getTargetPart(character)
 			table.insert(parts, character.HumanoidRootPart)
 		end
 		return parts[math.random(1, #parts)]
-	elseif Settings.AimPart == "Closest" then
+	elseif Aimbot.Settings.AimPart == "Closest" then
 		local head = character:FindFirstChild("Head")
 		local hrp = character:FindFirstChild("HumanoidRootPart")
 		local closestPart = nil
@@ -138,8 +138,8 @@ createFovCircle()
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	
-	local hotkey1 = Settings.Hotkey1 or Enum.UserInputType.MouseButton2
-	local hotkey2 = Settings.Hotkey2 or Enum.KeyCode.E
+	local hotkey1 = Aimbot.Settings.Hotkey1 or Enum.UserInputType.MouseButton2
+	local hotkey2 = Aimbot.Settings.Hotkey2 or Enum.KeyCode.E
 	
 	local isHotkey1 = input.UserInputType == hotkey1
 	local isHotkey2 = input.KeyCode == hotkey2
@@ -149,22 +149,22 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		connection = RunService.Heartbeat:Connect(function()
 			updateFovCircle()
 			
-			if not Settings.Enabled then
+			if not Aimbot.Settings.Enabled then
 				return
 			end
 			
 			if currentTarget and currentTarget.Parent and currentTarget.Parent:FindFirstChild("Humanoid") then
 				local humanoid = currentTarget.Parent.Humanoid
-				if Settings.AliveCheck and humanoid.Health <= 0 then
+				if Aimbot.Settings.AliveCheck and humanoid.Health <= 0 then
 					currentTarget = nil
 				else
 					local screenPos, onScreen = Camera:WorldToScreenPoint(currentTarget.Position)
-					if onScreen and isInFov(screenPos) and (not Settings.WallCheck or notBehindWall(currentTarget)) then
+					if onScreen and isInFov(screenPos) and (not Aimbot.Settings.WallCheck or notBehindWall(currentTarget)) then
 						local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, currentTarget.Position)
-						if Settings.Smoothness == 0 then
+						if Aimbot.Settings.Smoothness == 0 then
 							Camera.CFrame = targetCFrame
 						else
-							local alpha = 1 - (Settings.Smoothness / 100)
+							local alpha = 1 - (Aimbot.Settings.Smoothness / 100)
 							Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, alpha)
 						end
 						return
@@ -178,17 +178,17 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			for _, player in pairs(Players:GetPlayers()) do
 				if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") then
 					local humanoid = player.Character.Humanoid
-					if Settings.AliveCheck and humanoid.Health <= 0 then
+					if Aimbot.Settings.AliveCheck and humanoid.Health <= 0 then
 						continue
 					end
-					if Settings.TeamCheck and player.TeamColor == LocalPlayer.TeamColor then
+					if Aimbot.Settings.TeamCheck and player.TeamColor == LocalPlayer.TeamColor then
 						continue
 					end
 					
 					local targetPart = getTargetPart(player.Character)
 					if targetPart then
 						local screenPos, onScreen = Camera:WorldToScreenPoint(targetPart.Position)
-						if onScreen and isInFov(screenPos) and (not Settings.WallCheck or notBehindWall(targetPart)) then
+						if onScreen and isInFov(screenPos) and (not Aimbot.Settings.WallCheck or notBehindWall(targetPart)) then
 							local centerX = Camera.ViewportSize.X / 2
 							local centerY = Camera.ViewportSize.Y / 2
 							local distance = math.sqrt((centerX - screenPos.X)^2 + (centerY - screenPos.Y)^2)
@@ -203,10 +203,10 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 			
 			if currentTarget then
 				local targetCFrame = CFrame.lookAt(Camera.CFrame.Position, currentTarget.Position)
-				if Settings.Smoothness == 0 then
+				if Aimbot.Settings.Smoothness == 0 then
 					Camera.CFrame = targetCFrame
 				else
-					local alpha = 1 - (Settings.Smoothness / 100)
+					local alpha = 1 - (Aimbot.Settings.Smoothness / 100)
 					Camera.CFrame = Camera.CFrame:Lerp(targetCFrame, alpha)
 				end
 			end
@@ -217,8 +217,8 @@ end)
 UserInputService.InputEnded:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	
-	local hotkey1 = Settings.Hotkey1 or Enum.UserInputType.MouseButton2
-	local hotkey2 = Settings.Hotkey2 or Enum.KeyCode.E
+	local hotkey1 = Aimbot.Settings.Hotkey1 or Enum.UserInputType.MouseButton2
+	local hotkey2 = Aimbot.Settings.Hotkey2 or Enum.KeyCode.E
 	
 	local isHotkey1 = input.UserInputType == hotkey1
 	local isHotkey2 = input.KeyCode == hotkey2
