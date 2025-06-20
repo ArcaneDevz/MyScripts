@@ -6,7 +6,9 @@ local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
-local Settings = {
+local Aimbot = {}
+
+Aimbot.Settings = {
 	Enabled = false,
 	TeamCheck = false,
 	WallCheck = false,
@@ -236,3 +238,5 @@ RunService.Heartbeat:Connect(function()
 		updateFovCircle()
 	end
 end)
+
+return Aimbot
